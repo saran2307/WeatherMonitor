@@ -2,6 +2,7 @@ package com.weathermonitor.activity
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -30,6 +31,7 @@ class WeatherMonitorHome : AppCompatActivity() {
     var navigationCounter = 0
     var progressDialog: ProgressDialog? = null
     var weatherDetails: ArrayList<String>? = null
+    var todaysDetails: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +62,16 @@ class WeatherMonitorHome : AppCompatActivity() {
                     llAdditionDetails.visibility = View.VISIBLE
                 })
 
+                imgShare.setOnClickListener(View.OnClickListener {
+                    val shareIntent = Intent(Intent.ACTION_SEND)
+                    shareIntent.type = "text/plain"
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, todaysDetails)
+                    try {
+                        startActivity(shareIntent)
+                    } catch (ex: android.content.ActivityNotFoundException) {
+                    }
+
+                })
                 updateCities()
                 getWeatherReport()
                 //updateDays()
@@ -134,8 +146,6 @@ class WeatherMonitorHome : AppCompatActivity() {
                     }
 
                 }
-
-
                 println(":// current day " + AppGlobalProp.WEEK_DAYS.get(day - 1))
                 println(":// reportTime " + reportTime)
                 weatherDetails = CustomApplication.dbHelper?.getCurrentWeather(AppGlobalProp.WEATHER_CITIES.get(navigationCounter), reportDate + " " + reportTime + AppGlobalProp.DYNAMIC_TIME)//+""+AppGlobalProp.DEGREE
@@ -143,6 +153,9 @@ class WeatherMonitorHome : AppCompatActivity() {
                 txtHumidity.setText(weatherDetails?.get(2))
                 txtWind.setText(weatherDetails?.get(3))
                 txtPressure.setText(weatherDetails?.get(1))
+
+                todaysDetails = "Today's Weather: " + weatherDetails?.get(0) + "" + AppGlobalProp.DEGREE + "\n Humidity: " + weatherDetails?.get(2) + "\n Wind: " +
+                        weatherDetails?.get(3) + "\n Pressure: " + weatherDetails?.get(1)
                 when (i) {
                     1 -> {
                         txtDay1.setText(AppGlobalProp.WEEK_DAYS.get(day - 1))
